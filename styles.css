@@ -1,0 +1,13 @@
+#addButton, #deleteButton {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.primary-button {
+  white-space: nowrap;
+}
+
+.primary-button i {
+  margin-right: 5px; 
+}

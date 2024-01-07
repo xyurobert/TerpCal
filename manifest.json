@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "TerpCal",
+  "version": "1.0",
+  "permissions": [
+    "identity",
+    "tabs"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["*://app.testudo.umd.edu/*"],
+      "js": ["script.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "oauth2": {
+    "client_id": "58685306669-ebmle6f74bovjl9up6vjhkmvsuqs4mvi.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/calendar"
+    ]
+  }
+}
