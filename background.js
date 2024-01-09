@@ -9,7 +9,6 @@ chrome.runtime.onInstalled.addListener(() => {
     }
     
     oauthToken = token;
-    console.log('OAuth Token:', token);
   });
 });
 
@@ -28,8 +27,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         let classesToAdd = request.addClasses.filter(course => !existingClassSet.has(course.name + course.type));
         let classesToDelete = existingClasses.filter(course => !newClassSet.has(course.extendedProperties.private.name));
 
-        console.log("Classes to add: " + classesToAdd);
-        console.log("Classes to delete: " + classesToDelete);
+        console.log("Classes to add: ", classesToAdd);
+        console.log("Classes to delete: ", classesToDelete);
         await Promise.all(
           classesToAdd.map(course => makeEvent(course)).concat(classesToDelete.map(course => deleteEvent(course.id)))
         );
@@ -38,6 +37,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       } else if (request.deleteClasses) {
         let term = request.deleteClasses[0].term;
         let classesToDelete = await getAllExistingClasses(term);
+        console.log("Classes to delete: ", classesToDelete);
         //if classesToDelete is empty, do nothing
 
         await Promise.all(classesToDelete.map(course => deleteEvent(course.id)));
@@ -71,7 +71,7 @@ async function makeEvent(course, attempt = 0) {
   
       //getting class days
       let scheduleParts = course.time.split(' ');
-      console.log("Schedule Parts: " + scheduleParts);
+      //console.log("Schedule Parts: " + scheduleParts);
       let days = scheduleParts[0]
       while(days.length > 0) {
         if(days.length > 1 && days.slice(0,2) == "Th") {
@@ -88,7 +88,7 @@ async function makeEvent(course, attempt = 0) {
         }
         days = days.slice(1)
       }
-      console.log("course: " + course.time);
+      //console.log("course: " + course.time);
 
       //formatting time start and end
 
@@ -223,7 +223,7 @@ async function makeEvent(course, attempt = 0) {
     
         if (response.ok) {
           // const data = await response.json();
-          console.log('Created event: ' + event);
+          console.log('Created event: ', event);
           resolve();
         } else if ((response.status === 401 || response.status === 403) && attempt <= maxRetries) {
           console.log("ERROR: " + response)
@@ -298,16 +298,38 @@ function reformatFinalDate(finalDate) {
 }
 
 async function getAllExistingClasses(term) {
+  //console.log("Getting all classes with term " + term);
+
+  let allEvents = [];
+  let pageToken = null;
+  const encodedTerm = encodeURIComponent(term);  // Ensure the term is URL-encoded
+
   try {
-    const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?privateExtendedProperty=term=' + term, {
-      method: 'GET',
-      headers: new Headers({
-        'Authorization': 'Bearer ' + oauthToken
-      })
-    });
-    const data = await response.json();
-    console.log("DATA: " + data);
-    return data.items || []; // Return the events or an empty array if none are found
+    do {
+      let url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?privateExtendedProperty=term=${encodedTerm}`;
+      
+      if (pageToken) {
+        url += `&pageToken=${encodeURIComponent(pageToken)}`;
+      }
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: new Headers({
+          'Authorization': 'Bearer ' + oauthToken
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      allEvents = allEvents.concat(data.items || []);
+
+      pageToken = data.nextPageToken;
+    } while (pageToken);
+
+    return allEvents;
   } catch (error) {
     console.error('Error retrieving events', error);
     return []; // Return an empty array on error
@@ -338,7 +360,6 @@ function refreshToken() {
         }
         
         oauthToken = token;
-        console.log('New OAuth Token:', token);
         resolve();
 
       });

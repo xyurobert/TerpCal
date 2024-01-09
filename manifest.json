@@ -3,8 +3,7 @@
   "name": "TerpCal",
   "version": "1.0",
   "permissions": [
-    "identity",
-    "tabs"
+    "identity"
   ],
   "content_scripts": [
     {
