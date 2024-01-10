@@ -350,19 +350,29 @@ function redirect(term) {
 }
 
 function refreshToken() {
-
   return new Promise((resolve, reject) => {
-    chrome.identity.removeCachedAuthToken({token: oauthToken}, function() {
+    // Check if the oauthToken is available before trying to remove it
+    if (oauthToken) {
+      chrome.identity.removeCachedAuthToken({ token: oauthToken }, function() {
+        chrome.identity.getAuthToken({ interactive: true }, function(token) {
+          if (chrome.runtime.lastError) {
+            reject(new Error(chrome.runtime.lastError.message));
+            return;
+          }
+          oauthToken = token;
+          resolve();
+        });
+      });
+    } else {
+      // If oauthToken is not set, just get a new token
       chrome.identity.getAuthToken({ interactive: true }, function(token) {
         if (chrome.runtime.lastError) {
-          reject(chrome.runtime.lastError.message);
+          reject(new Error(chrome.runtime.lastError.message));
           return;
         }
-        
         oauthToken = token;
         resolve();
-
       });
-    });
+    }
   });
 }
