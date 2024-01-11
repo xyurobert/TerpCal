@@ -9,6 +9,7 @@ chrome.runtime.onInstalled.addListener(() => {
     }
     
     oauthToken = token;
+    console.log(oauthToken);
   });
 });
 
@@ -226,7 +227,7 @@ async function makeEvent(course, attempt = 0) {
           console.log('Created event: ', event);
           resolve();
         } else if ((response.status === 401 || response.status === 403) && attempt <= maxRetries) {
-          console.log("ERROR: " + response)
+          console.log("ERROR: ", response)
           console.log(`Token might be expired. Attempting to refresh and retry (Attempt ${attempt + 1} of ${maxRetries})`);
           await refreshToken();
           resolve(makeEvent(course, attempt + 1)); // Resolve with the result of the retry
@@ -297,12 +298,11 @@ function reformatFinalDate(finalDate) {
   return reformattedDate;
 }
 
-async function getAllExistingClasses(term) {
-  //console.log("Getting all classes with term " + term);
-
+async function getAllExistingClasses(term, attempt = 0) {
+  const maxRetries = 3;
   let allEvents = [];
   let pageToken = null;
-  const encodedTerm = encodeURIComponent(term);  // Ensure the term is URL-encoded
+  const encodedTerm = encodeURIComponent(term);
 
   try {
     do {
@@ -320,7 +320,13 @@ async function getAllExistingClasses(term) {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if ((response.status === 401 || response.status === 403) && attempt < maxRetries) {
+          console.log(`Attempt ${attempt + 1} of ${maxRetries}: Refreshing token...`);
+          await refreshToken();
+          return await getAllExistingClasses(term, attempt + 1); // Recursive call after token refresh
+        } else {
+          throw new Error(`Error retrieving events. Status: ${response.status}`);
+        }
       }
 
       const data = await response.json();
@@ -331,7 +337,7 @@ async function getAllExistingClasses(term) {
 
     return allEvents;
   } catch (error) {
-    console.error('Error retrieving events', error);
+    console.error('Error retrieving events:', error);
     return []; // Return an empty array on error
   }
 }
@@ -360,6 +366,7 @@ function refreshToken() {
             return;
           }
           oauthToken = token;
+          console.log("Replacing Token: ", oauthToken);
           resolve();
         });
       });
@@ -371,6 +378,7 @@ function refreshToken() {
           return;
         }
         oauthToken = token;
+        console.log("No Token Detected, Creating New Token: ", oauthToken);
         resolve();
       });
     }
