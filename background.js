@@ -122,13 +122,18 @@ async function makeEvent(course, attempt = 0) {
       //calculating start date
       let semesterStart;
       let semesterEnd;
+      let day;
       if (course.term == "202401") {
         semesterStart = "2024-01-24"
   
         for(let i = 2; i < 7; i++) {
   
           if (classDays[i % 5] == 1) {
-            let day = 25 + (i%5) - 3
+            if (i <= 4) {
+              day = 25 + (i%5) - 3
+            } else {
+              day = 24 + i
+            }
             semesterStart = "2024-01-" + day
             break
           }
