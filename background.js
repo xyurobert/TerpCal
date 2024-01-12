@@ -97,6 +97,8 @@ async function makeEvent(course, attempt = 0) {
         type = "Lecture"
       } else if (course.type == "Dis") {
         type = "Discussion"
+      } else if (course.type == "Lab") {
+        type = "Lab"
       } else {
         type = "FINAL"
       }
