@@ -131,11 +131,13 @@ async function makeEvent(course, attempt = 0) {
           if (classDays[i % 5] == 1) {
             if (i <= 4) {
               day = 25 + (i%5) - 3
+              semesterStart = "2024-01-" + day
+              break
             } else {
               day = 24 + i
+              semesterStart = "2024-01-" + day
+              break
             }
-            semesterStart = "2024-01-" + day
-            break
           }
   
         }
