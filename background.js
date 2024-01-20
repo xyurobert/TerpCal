@@ -7,7 +7,6 @@ chrome.runtime.onInstalled.addListener(() => {
       console.error(chrome.runtime.lastError.message);
       return;
     }
-    
     oauthToken = token;
     console.log(oauthToken);
   });
@@ -188,7 +187,10 @@ async function makeEvent(course, attempt = 0) {
             'timeZone': 'America/New_York'
           },
           'recurrence': ["RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=" + format_days + ";UNTIL=" + semesterEnd],
-    
+          'reminders': {
+            'useDefault': false,
+            'overrides': []
+          },
           //extended property. term identifies what term it is a part of, name is a unique id that is used to identify specific class for creation/deletion
           'extendedProperties': {
             'private':{
@@ -210,6 +212,10 @@ async function makeEvent(course, attempt = 0) {
           'end': {
             'dateTime': finalStart + 'T' + timeEnd,
             'timeZone' : 'America/New_York'
+          },
+          'reminders': {
+            'useDefault': false,
+            'overrides': []
           },
           'extendedProperties': {
             'private': {
