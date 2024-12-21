@@ -124,6 +124,31 @@ async function makeEvent(course, attempt = 0) {
       let semesterStart;
       let semesterEnd;
       let day;
+
+      if (course.term == "202501") {
+        semesterStart = "2025-01-27"
+
+        semesterEnd = "20250513T000000Z"
+      }
+
+      if (course.term == "202408") {
+        semesterStart = "2024-08-26"
+
+        for(let i = 0; i < 5; i++) {
+          if (classDays[i] == 1) {
+            let day = 26 + i;
+            if(day === 32) {
+              semesterStart = "2024-09-02";
+              break;
+            } else {
+              semesterStart = "2024-08-" + day;
+              break
+            }
+          }
+        }
+        semesterEnd = "20241212T000000Z"
+      }
+
       if (course.term == "202401") {
         semesterStart = "2024-01-24"
   
@@ -359,11 +384,15 @@ async function getAllExistingClasses(term, attempt = 0) {
 
 function redirect(term) {
   let url;
-  if(term === "202401") {
+  if (term == "202501") {
+    url = 'https://calendar.google.com/calendar/u/0/r/week/2025/1/27';
+  } else if (term === "202408") {
+    url = 'https://calendar.google.com/calendar/u/0/r/week/2024/8/28';
+  } else if(term === "202401") {
     url = 'https://calendar.google.com/calendar/u/0/r/week/2024/1/22';
   } else if (term === "202308") {
     url = 'https://calendar.google.com/calendar/u/0/r/week/2023/8/28';
-  }
+  } 
 
   if(url) {
     chrome.tabs.create({ url: url });
