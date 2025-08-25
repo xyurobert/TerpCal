@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TerpCal",
-  "version": "1.3",
+  "version": "1.4",
   "description": "Sync up your UMD schedule with your Google Calendar",
   "icons": {
     "16": "icons/icon16.png",

@@ -125,6 +125,11 @@ async function makeEvent(course, attempt = 0) {
       let semesterEnd;
       let day;
 
+      if (course.term == "202508") {
+        semesterStart = "2025-09-02"
+        semesterEnd = "20251212T000000Z"
+      }
+
       if (course.term == "202501") {
         semesterStart = "2025-01-27"
 
@@ -187,7 +192,7 @@ async function makeEvent(course, attempt = 0) {
         }
         semesterEnd = "20231212T000000Z"
       }
-  
+
       //creating api-compatible days
       let format_days = ''
       for(let j = 0; j < classDays.length; j++) {
@@ -392,7 +397,9 @@ function redirect(term) {
     url = 'https://calendar.google.com/calendar/u/0/r/week/2024/1/22';
   } else if (term === "202308") {
     url = 'https://calendar.google.com/calendar/u/0/r/week/2023/8/28';
-  } 
+  } else if (term == "202508") {
+    url = 'https://calendar.google.com/calendar/u/0/r/week/2025/9/02';
+  }
 
   if(url) {
     chrome.tabs.create({ url: url });
