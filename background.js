@@ -123,10 +123,47 @@ async function makeEvent(course, attempt = 0) {
       //calculating start date
       let semesterStart;
       let semesterEnd;
-      let day;
+
+      if (course.term == "202601") {
+        semesterStart = "2026-01-26";
+
+        for(let i = 0; i < 5; i++) {
+          if (classDays[i] == 1) {
+            let day = 26 + i;
+            if(day > 31) {
+              semesterStart = "2026-02-" + String(day - 31).padStart(2, '0');
+              break;
+            } else {
+              semesterStart = "2026-01-" + String(day).padStart(2, '0');
+              break
+            }
+          }
+        }
+        semesterEnd = "20260508T000000Z";
+      }
 
       if (course.term == "202508") {
-        semesterStart = "2025-09-02"
+        // Labor Day is September 1, 2025 (Monday), so classes start after that
+        // Monday classes start on September 8, 2025 (next Monday after Labor Day)
+        // Wednesday classes start on September 3, 2025
+        // Friday classes start on September 5, 2025
+        
+        for(let i = 0; i < 5; i++) {
+          if (classDays[i] == 1) {
+            if (i === 0) { // Monday
+              semesterStart = "2025-09-08"; // Next Monday after Labor Day
+            } else if (i === 1) { // Tuesday
+              semesterStart = "2025-09-02"; // Tuesday after Labor Day
+            } else if (i === 2) { // Wednesday
+              semesterStart = "2025-09-03"; // Wednesday after Labor Day
+            } else if (i === 3) { // Thursday
+              semesterStart = "2025-09-04"; // Thursday after Labor Day
+            } else if (i === 4) { // Friday
+              semesterStart = "2025-09-05"; // Friday after Labor Day
+            }
+            break;
+          }
+        }
         semesterEnd = "20251212T000000Z"
       }
 
@@ -152,45 +189,6 @@ async function makeEvent(course, attempt = 0) {
           }
         }
         semesterEnd = "20241212T000000Z"
-      }
-
-      if (course.term == "202401") {
-        semesterStart = "2024-01-24"
-  
-        for(let i = 2; i < 7; i++) {
-  
-          if (classDays[i % 5] == 1) {
-            if (i <= 4) {
-              day = 25 + (i%5) - 3
-              semesterStart = "2024-01-" + day
-              break
-            } else {
-              day = 24 + i
-              semesterStart = "2024-01-" + day
-              break
-            }
-          }
-  
-        }
-        semesterEnd = "20240510T000000Z"
-      }
-      
-      if (course.term == "202308") {
-        semesterStart = "2023-08-28"
-  
-        for(let i = 0; i < 5; i++) {
-          if (classDays[i] == 1) {
-            let day = 28 + i;
-            if(day === 32) {
-              semesterStart = "2023-09-01";
-              break;
-            } else {
-              semesterStart = "2023-08-" + day;
-              break
-            }
-          }
-        }
-        semesterEnd = "20231212T000000Z"
       }
 
       //creating api-compatible days
@@ -391,14 +389,12 @@ function redirect(term) {
   let url;
   if (term == "202501") {
     url = 'https://calendar.google.com/calendar/u/0/r/week/2025/1/27';
-  } else if (term === "202408") {
-    url = 'https://calendar.google.com/calendar/u/0/r/week/2024/8/28';
-  } else if(term === "202401") {
-    url = 'https://calendar.google.com/calendar/u/0/r/week/2024/1/22';
   } else if (term === "202308") {
     url = 'https://calendar.google.com/calendar/u/0/r/week/2023/8/28';
   } else if (term == "202508") {
     url = 'https://calendar.google.com/calendar/u/0/r/week/2025/9/02';
+  } else if (term == "202601") {
+    url = 'https://calendar.google.com/calendar/u/0/r/week/2026/1/26';
   }
 
   if(url) {
